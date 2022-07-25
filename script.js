@@ -1,3 +1,4 @@
+// adjust grid gap for different screen sizes
 ["resize", "load"].forEach((el) =>
   window.addEventListener(el, () => {
     document.querySelector("main").style.gridTemplateColumns = `repeat(${
@@ -6,6 +7,7 @@
   })
 );
 
+// show/hide form on button click
 const form = document.querySelector("form");
 let formStatus = 0;
 
@@ -15,6 +17,7 @@ document.querySelector("#show-form").onclick = () => {
   formStatus = 1 - formStatus;
 };
 
+// library constructor & prototypes
 let myLibrary = [];
 
 function Book(id, title, author, pages, isRead) {
@@ -25,60 +28,68 @@ function Book(id, title, author, pages, isRead) {
   this.isRead = isRead;
 }
 
-Book.prototype.changeReadStatus = function (readButton) {
+Book.prototype.changeReadStatus = function () {
   this.isRead = !this.isRead;
-  readButton.textContent = this.isRead ? "Read" : "Not Read";
-  readButton.classList.toggle("not-read");
 };
 
 Book.prototype.createCard = function () {
   let card = document.createElement("div"),
-    h3 = document.createElement("h3"),
-    h4 = document.createElement("h4"),
-    p = document.createElement("p"),
-    div = document.createElement("div"),
-    button = document.createElement("button");
+    bookTitle = document.createElement("h3"),
+    bookAuthor = document.createElement("h4"),
+    bookPages = document.createElement("p"),
+    buttonContainer = document.createElement("div"),
+    readButton = document.createElement("button"),
+    deleteButton = document.createElement("button");
 
-  card.className = "card";
-  h3.textContent = this.title;
-  h4.textContent = `by ${this.author}`;
-  p.textContent = `Pages: ${this.pages}`;
-  button.textContent = this.isRead ? "Read" : "Not Read";
-  button.className = this.isRead ? "" : "not-read";
-  button.onclick = function () {
-    myLibrary[
-      this.parentElement.parentElement.getAttribute("data-id")
-    ].changeReadStatus(this);
+  bookTitle.textContent = this.title;
+  bookAuthor.textContent = `by ${this.author}`;
+  bookPages.textContent = `Pages: ${this.pages}`;
+  readButton.textContent = this.isRead ? "Read" : "Not Read";
+  readButton.className = this.isRead ? "" : "not-read";
+  deleteButton.textContent = "X";
+
+  // button events
+  readButton.onclick = function () {
+    let thisBook = myLibrary.filter(
+      (book) =>
+        book.id === this.parentElement.parentElement.getAttribute("data-id")
+    )[0];
+    thisBook.changeReadStatus();
+    this.textContent = thisBook.isRead ? "Read" : "Not Read";
+    this.classList.toggle("not-read");
   };
-  div.appendChild(button);
-  card.append(h3, h4, p, div);
+
+  deleteButton.onclick = function () {
+    removeBookFromLibrary(this.parentElement.getAttribute("data-id"));
+  };
+
+  buttonContainer.appendChild(readButton);
+
+  card.append(bookTitle, bookAuthor, bookPages, buttonContainer, deleteButton);
   card.setAttribute("data-id", this.id);
+  card.className = "card";
 
   document.querySelector("main").appendChild(card);
 };
 
+// functions to add and remove books
 function addBookToLibrary(e) {
   const formData = new FormData(form);
   let book = new Book(
-    myLibrary.length,
+    `${formData.get("title")}${Math.floor(Math.random() * 10000)}`,
     formData.get("title"),
     formData.get("author"),
     formData.get("pages"),
     formData.get("read") ? true : false
   );
-  console.log(book.isRead);
-  myLibrary.push(book);
+
+  myLibrary = [...myLibrary, book];
   book.createCard();
 }
 
-function removeCardFromLibrary(bookId) {
-  myLibrary.filter((book) => book.id !== bookId);
-  updateCards();
-}
-
-function updateCards() {
-  document.querySelector("main").textContent = "";
-  myLibrary.forEach((book) => book.createCard());
+function removeBookFromLibrary(bookId) {
+  document.querySelector(`.card[data-id=${bookId}]`).remove();
+  myLibrary = myLibrary.filter((book) => book.id !== bookId);
 }
 
 form.onsubmit = function (e) {
