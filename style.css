@@ -54,7 +54,6 @@ select {
   padding: 2px;
   border: 1px solid #222;
   color: #222;
-  border-radius: 10px;
 }
 
 header > div > button {
@@ -94,6 +93,7 @@ main {
   color: #222;
   padding: 10px;
   margin-bottom: 10px;
+  border-bottom: 1px solid #aaa;
 }
 
 .card div {
@@ -105,17 +105,19 @@ main {
 }
 
 .card button {
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: bold;
   border: 0;
   padding: 10px 100px 100px 100px;
   transform: rotate(-45deg);
   cursor: pointer;
-}
-
-.read {
   background: var(--mint);
   color: #222;
+}
+
+.not-read {
+  background: red !important;
+  color: #eee !important;
 }
 
 form {
