@@ -17,9 +17,9 @@
       <div class="filters">
         <label for="read-filter">Read status:</label>
         <select name="read-filter" id="read-filter" value="any">
-          <option value="any">Any</option>
-          <option value="read">Read</option>
-          <option value="not-read">Not Read</option>
+          <option value=".card">Any</option>
+          <option value=".card > div > button.not-read">Read</option>
+          <option value=".card > div > button:not(.not-read)">Not Read</option>
         </select>
       </div>
       <button id="show-form">Add book</button>

@@ -65,6 +65,7 @@ Book.prototype.createCard = function () {
     saveToStorage(myLibrary);
     this.textContent = thisBook.isRead ? "Read" : "Not Read";
     this.classList.toggle("not-read");
+    filterCards();
   };
 
   deleteButton.onclick = function () {
@@ -111,4 +112,24 @@ form.onsubmit = function (e) {
   e.preventDefault();
   addBookToLibrary(e);
   this.reset();
+};
+
+// filter cards by read status
+let selector = ".card";
+
+const filterCards = () => {
+  let targetElements = document.querySelectorAll(selector);
+  document
+    .querySelectorAll(".card")
+    .forEach((card) => (card.style.display = "block"));
+
+  if (targetElements.length && selector !== ".card")
+    targetElements.forEach(
+      (el) => (el.parentNode.parentNode.style.display = "none")
+    );
+};
+
+document.querySelector("select").onclick = function () {
+  selector = this.value;
+  filterCards();
 };
