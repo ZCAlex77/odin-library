@@ -18,14 +18,21 @@ document.querySelector("#show-form").onclick = () => {
 };
 
 // library constructor & prototypes
-let myLibrary = [];
+const saveToStorage = (library) =>
+  localStorage.setItem("odin-library", JSON.stringify(library));
 
-function Book(id, title, author, pages, isRead) {
+let myLibrary = JSON.parse(localStorage.getItem("odin-library")) || [];
+myLibrary = myLibrary.map((book) => {
+  let { id, title, author, pages, isRead } = book;
+  return new Book(id, { title, author, pages, isRead });
+});
+
+function Book(id, options) {
   this.id = id;
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.isRead = isRead;
+  this.title = options.title;
+  this.author = options.author;
+  this.pages = options.pages;
+  this.isRead = options.isRead;
 }
 
 Book.prototype.changeReadStatus = function () {
@@ -55,6 +62,7 @@ Book.prototype.createCard = function () {
         book.id === this.parentElement.parentElement.getAttribute("data-id")
     )[0];
     thisBook.changeReadStatus();
+    saveToStorage(myLibrary);
     this.textContent = thisBook.isRead ? "Read" : "Not Read";
     this.classList.toggle("not-read");
   };
@@ -72,24 +80,31 @@ Book.prototype.createCard = function () {
   document.querySelector("main").appendChild(card);
 };
 
+// create cards for saved books
+myLibrary.forEach((book) => book.createCard());
+
 // functions to add and remove books
 function addBookToLibrary(e) {
   const formData = new FormData(form);
   let book = new Book(
     `${formData.get("title")}${Math.floor(Math.random() * 10000)}`,
-    formData.get("title"),
-    formData.get("author"),
-    formData.get("pages"),
-    formData.get("read") ? true : false
+    {
+      title: formData.get("title"),
+      author: formData.get("author"),
+      pages: formData.get("pages"),
+      isRead: formData.get("read") ? true : false,
+    }
   );
 
   myLibrary = [...myLibrary, book];
+  saveToStorage(myLibrary);
   book.createCard();
 }
 
 function removeBookFromLibrary(bookId) {
   document.querySelector(`.card[data-id=${bookId}]`).remove();
   myLibrary = myLibrary.filter((book) => book.id !== bookId);
+  saveToStorage(myLibrary);
 }
 
 form.onsubmit = function (e) {
