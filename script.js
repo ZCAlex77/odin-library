@@ -17,6 +17,69 @@ document.querySelector("#show-form").onclick = () => {
   formStatus = 1 - formStatus;
 };
 
+// create Book class
+class Book {
+  constructor(id, options) {
+    this.id = id;
+    this.title = options.title;
+    this.author = options.author;
+    this.pages = options.pages;
+    this.isRead = options.isRead;
+  }
+
+  changeReadStatus = function () {
+    this.isRead = !this.isRead;
+  };
+
+  createCard = function () {
+    let card = document.createElement("div"),
+      bookTitle = document.createElement("h3"),
+      bookAuthor = document.createElement("h4"),
+      bookPages = document.createElement("p"),
+      buttonContainer = document.createElement("div"),
+      readButton = document.createElement("button"),
+      deleteButton = document.createElement("button");
+
+    bookTitle.textContent = this.title;
+    bookAuthor.textContent = `by ${this.author}`;
+    bookPages.textContent = `Pages: ${this.pages}`;
+    readButton.textContent = this.isRead ? "Read" : "Not Read";
+    readButton.className = this.isRead ? "" : "not-read";
+    deleteButton.textContent = "X";
+
+    // button events
+    readButton.onclick = function () {
+      let thisBook = myLibrary.filter(
+        (book) =>
+          book.id === this.parentElement.parentElement.getAttribute("data-id")
+      )[0];
+      thisBook.changeReadStatus();
+      saveToStorage(myLibrary);
+      this.textContent = thisBook.isRead ? "Read" : "Not Read";
+      this.classList.toggle("not-read");
+      filterCards();
+    };
+
+    deleteButton.onclick = function () {
+      removeBookFromLibrary(this.parentElement.getAttribute("data-id"));
+    };
+
+    buttonContainer.appendChild(readButton);
+
+    card.append(
+      bookTitle,
+      bookAuthor,
+      bookPages,
+      buttonContainer,
+      deleteButton
+    );
+    card.setAttribute("data-id", this.id);
+    card.className = "card";
+
+    document.querySelector("main").appendChild(card);
+  };
+}
+
 // library constructor & prototypes
 const saveToStorage = (library) =>
   localStorage.setItem("odin-library", JSON.stringify(library));
@@ -26,60 +89,6 @@ myLibrary = myLibrary.map((book) => {
   let { id, title, author, pages, isRead } = book;
   return new Book(id, { title, author, pages, isRead });
 });
-
-function Book(id, options) {
-  this.id = id;
-  this.title = options.title;
-  this.author = options.author;
-  this.pages = options.pages;
-  this.isRead = options.isRead;
-}
-
-Book.prototype.changeReadStatus = function () {
-  this.isRead = !this.isRead;
-};
-
-Book.prototype.createCard = function () {
-  let card = document.createElement("div"),
-    bookTitle = document.createElement("h3"),
-    bookAuthor = document.createElement("h4"),
-    bookPages = document.createElement("p"),
-    buttonContainer = document.createElement("div"),
-    readButton = document.createElement("button"),
-    deleteButton = document.createElement("button");
-
-  bookTitle.textContent = this.title;
-  bookAuthor.textContent = `by ${this.author}`;
-  bookPages.textContent = `Pages: ${this.pages}`;
-  readButton.textContent = this.isRead ? "Read" : "Not Read";
-  readButton.className = this.isRead ? "" : "not-read";
-  deleteButton.textContent = "X";
-
-  // button events
-  readButton.onclick = function () {
-    let thisBook = myLibrary.filter(
-      (book) =>
-        book.id === this.parentElement.parentElement.getAttribute("data-id")
-    )[0];
-    thisBook.changeReadStatus();
-    saveToStorage(myLibrary);
-    this.textContent = thisBook.isRead ? "Read" : "Not Read";
-    this.classList.toggle("not-read");
-    filterCards();
-  };
-
-  deleteButton.onclick = function () {
-    removeBookFromLibrary(this.parentElement.getAttribute("data-id"));
-  };
-
-  buttonContainer.appendChild(readButton);
-
-  card.append(bookTitle, bookAuthor, bookPages, buttonContainer, deleteButton);
-  card.setAttribute("data-id", this.id);
-  card.className = "card";
-
-  document.querySelector("main").appendChild(card);
-};
 
 // create cards for saved books
 myLibrary.forEach((book) => book.createCard());
